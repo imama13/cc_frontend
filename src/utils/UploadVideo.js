@@ -1,5 +1,4 @@
 import axios from "axios";
-import { useAuth } from "../context/AuthContext";
 
 export async function UploadVideo(videoFile, videoSize, username) {
   // get username
@@ -25,7 +24,7 @@ export async function UploadVideo(videoFile, videoSize, username) {
       },
     });
 
-    if (response.status !== 200) {
+    if (response.status > 205) {
       throw new Error(response.data.message || "Something went wrong.");
     }
   } catch (error) {

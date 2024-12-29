@@ -1,9 +1,21 @@
 import React from "react";
 import Slider from "rc-slider";
+import { useAuth } from "../context/AuthContext";
 import "rc-slider/assets/index.css";
+import { useState } from "react";
 
-function StatsSection({ bandwidthUsed, maxBandwidth = 100, storageUsed, maxStorage = 50 }) {
-  // Calculate percentage for the slider
+function StatsSection({ GetStore_Func, addsize, maxBandwidth = 100, maxStorage = 50 }) {
+  const { user } = useAuth();
+  const [storageUsed, setStorageUsed] = useState(0);
+  const [bandwidthUsed, setBandwidthUsed] = useState(0);
+
+  const handleStorage = async () => {
+    const bdy = await GetStore_Func(user.username);
+    setBandwidthUsed(bdy.totalUsageToday);
+  };
+
+  handleStorage();
+
   const bandwidthPercentage = Math.min((bandwidthUsed / maxBandwidth) * 100, 100);
   const storagePercentage = Math.min((storageUsed / maxStorage) * 100, 100);
 
