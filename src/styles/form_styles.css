@@ -1,0 +1,21 @@
+body {
+  background-color: #f8f9fa;
+  font-family: Arial, sans-serif;
+}
+.form-container {
+  max-width: 400px;
+  margin: 100px auto;
+  padding: 20px;
+  background: #ffffff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+.toggle-link {
+  text-decoration: underline;
+  cursor: pointer;
+  color: #007bff;
+}
+.toggle-link:hover {
+  color: #0056b3;
+}
+
