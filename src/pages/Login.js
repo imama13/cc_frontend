@@ -52,6 +52,9 @@ const Login = () => {
         setIsLogin(true); // Switch to login after registration
         setUsername("");
         setPassword("");
+      } else {
+        login(username);
+        navigate("/"); // Redirect to home page after login
       }
     } catch (error) {
       alert(`Error: ${error.message}`);
