@@ -8,8 +8,9 @@ function UploadSection({ onUpload }) {
   const [videoName, setVideoName] = useState(""); // Video name
   const [videoDescription, setVideoDescription] = useState(""); // Short description
   const [status, setStatus] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0); // Track upload progress
 
-  const { setVideos, videoSize, setVideoSize, setStorage,
+  const { setVideos, videoSize, setVideoSize, setStorageUsed,
     storageUsed, setUploadError, uploadError,
     setBandwidthUsed, bandwidthUsed } = useVideo();
   const jwt_token = useAuth().getToken();
@@ -42,21 +43,29 @@ function UploadSection({ onUpload }) {
 
     try {
       setStatus("Uploading...");
+      setUploadProgress(0); // Reset progress bar
+
+      const onUploadProgress = (progressEvent) => {
+        const percentage = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        setUploadProgress(percentage);
+      };
+
       await onUpload(videoFile, videoSize, videoName, videoDescription);
-      const newvideo_url = await AddVideo(jwt_token, videoFile, videoName, videoDescription);
-      const newvideo = { "url": newvideo_url.url, "title": videoName, "description": videoDescription, "size": videoSize };
-      setVideos((prevVideos) => [newvideo, ...prevVideos]);
-      setStorage((prevStorage) => prevStorage + videoSize);
+      const newvideo = await AddVideo(jwt_token, videoFile, videoName, videoDescription, onUploadProgress);
+
+      setVideos((prevVideos) => [newvideo.video, ...prevVideos]);
+      setStorageUsed((prevStorage) => prevStorage + videoSize);
       setBandwidthUsed((prevBandwidth) => prevBandwidth + videoSize);
 
-
       setStatus("Video uploaded successfully!");
+      setUploadProgress(100); // Complete the progress bar
       setVideoFile(null);
       setVideoName("");
       setVideoDescription("");
     } catch (error) {
       setStatus(`Error uploading video: ${error.message}`);
       console.error(error);
+      setUploadProgress(0); // Reset progress bar on error
     }
   };
 
@@ -74,6 +83,20 @@ function UploadSection({ onUpload }) {
         </p>
       )}
       <p>{status}</p>
+      {uploadProgress > 0 && (
+        <div className="progress mb-3">
+          <div
+            className="progress-bar"
+            role="progressbar"
+            style={{ width: `${uploadProgress}%` }}
+            aria-valuenow={uploadProgress}
+            aria-valuemin="0"
+            aria-valuemax="100"
+          >
+            {uploadProgress}%
+          </div>
+        </div>
+      )}
       <form onSubmit={handleSubmit}>
         <div className="mb-2">
           <label htmlFor="videoName" className="form-label">

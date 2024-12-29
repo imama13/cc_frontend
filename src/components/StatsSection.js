@@ -6,16 +6,9 @@ import "rc-slider/assets/index.css";
 import { useState } from "react";
 
 
-function StatsSection({ GetStore_Func, totalsize, maxBandwidth = 100, maxStorage = 50 }) {
+function StatsSection({maxBandwidth = 100, maxStorage = 50 }) {
   const { user } = useAuth();
   const { storageUsed, setStorageUsed, bandwidthUsed, setBandwidthUsed, uploadError, setUploadError } = useVideo();
-  const handleStorage = async () => {
-    const bdy = await GetStore_Func(user.username);
-    setBandwidthUsed(bdy.totalUsageToday);
-    setStorageUsed(totalsize);
-  };
-
-  handleStorage();
 
   const bandwidthPercentage = Math.min((bandwidthUsed / maxBandwidth) * 100, 100);
   const storagePercentage = Math.min((storageUsed / maxStorage) * 100, 100);

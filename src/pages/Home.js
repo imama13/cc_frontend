@@ -16,12 +16,20 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 function Home() {
   const { user } = useAuth();
-  const {videos, setVideos} = useVideo();
-  const sizeState = useState(0.0);
+  const {videos, setVideos,
+          setBandwidthUsed, setStorageUsed} = useVideo();
   const jwt_token = useAuth().getToken();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [totalSize, setTotalSize] = useState(0.0);
+
+  const handleStorage = async () => {
+    const bdy = await GetStorageInfo(user.username);
+    setBandwidthUsed(bdy.totalUsageToday);
+  };
+  useEffect(() => {
+    handleStorage();
+  }, []);
 
   useEffect(() => {
     const fetchVideos = async () => {
@@ -42,6 +50,7 @@ function Home() {
     const calculateTotalSize = () => {
       const total = videos.reduce((acc, video) => acc + video.size, 0); // Assuming `video.size` is in MB
       setTotalSize(total);
+      setStorageUsed(total);
     };
 
     calculateTotalSize();
@@ -66,7 +75,7 @@ function Home() {
         <h1>Welcome to the Video Streaming App</h1>
         <UploadSection onUpload={handleUpload} />
         <VideoListSection videos={videos} loading={ loading } error={ error } />
-        <StatsSection GetStore_Func={ GetStorageInfo } totalsize={ totalSize }/>
+        <StatsSection/>
       </main>
       <Footer />
     </div>
