@@ -13,6 +13,14 @@ function StatsSection({ GetStore_Func, sizestate, maxBandwidth = 100, maxStorage
   const handleStorage = async () => {
     const bdy = await GetStore_Func(user.username);
     setBandwidthUsed(bdy.totalUsageToday);
+    setStorageUsed(bdy.totalStorageUsed);
+
+    // Check for insufficient storage
+    if (bdy.insufficientStorage) {
+      setUploadError(true);
+    } else {
+      setUploadError(false);
+    }
   };
 
   handleStorage();
@@ -20,6 +28,10 @@ function StatsSection({ GetStore_Func, sizestate, maxBandwidth = 100, maxStorage
 
   const bandwidthPercentage = Math.min((bandwidthUsed / maxBandwidth) * 100, 100);
   const storagePercentage = Math.min((storageUsed / maxStorage) * 100, 100);
+  const storageRemaining = Math.max(maxStorage - storageUsed, 0);
+
+  // Determine bar color for storage
+  const storageBarColor = storagePercentage > 80 ? "red" : "#007bff";
 
   return (
     <section id="stats-section" className="my-4">
@@ -52,9 +64,9 @@ function StatsSection({ GetStore_Func, sizestate, maxBandwidth = 100, maxStorage
         <Slider
           value={storagePercentage}
           max={100}
-          trackStyle={{ backgroundColor: "#007bff", height: 8 }}
+          trackStyle={{ backgroundColor: storageBarColor, height: 8 }}
           handleStyle={{
-            borderColor: "#007bff",
+            borderColor: storageBarColor,
             height: 20,
             width: 20,
             marginLeft: -10,
@@ -64,11 +76,17 @@ function StatsSection({ GetStore_Func, sizestate, maxBandwidth = 100, maxStorage
           railStyle={{ backgroundColor: "#e4e4e4", height: 8 }}
           disabled
         />
-        <p className="mt-2 text-center">{storagePercentage.toFixed(2)}%</p>
+        <p className="mt-2 text-center" style={{ color: storageBarColor, fontWeight: "bold" }}>
+          {storagePercentage.toFixed(2)}% storage consumed, {storageRemaining.toFixed(2)} MB left
+        </p>
       </div>
+      {uploadError && (
+        <p style={{ color: "red", fontWeight: "bold" }}>
+          Not enough storage! Clear space to upload this video.
+        </p>
+      )}
     </section>
   );
 }
 
 export default StatsSection;
-
