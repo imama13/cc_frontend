@@ -15,7 +15,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 function Home() {
   const { user } = useAuth();
   const [videos, setVideos] = useState([]);
-  const [addSize, setAddSize] = useState(0.0);  // Initialize the state
+  const sizeState = useState(0.0);
+  const [addSize, setAddSize] = sizeState;
 
    const handleUpload = async (videoFile, videoSize) => {
     if (!user) {
@@ -26,8 +27,8 @@ function Home() {
     try {
       await UploadVideo(videoFile, videoSize, user.username);
       // Optionally update state after successful upload
-      console.log("Video uploaded successfully");
-      setAddSize(videoSize);  // Update the state
+      alert("Video uploaded successfully");
+      setAddSize(1);  // Update the state
     } catch (error) {
       console.error("Error uploading video:", error.message);
     }
@@ -40,7 +41,7 @@ function Home() {
         <h1>Welcome to the Video Streaming App</h1>
         <UploadSection onUpload={handleUpload} />
         <VideoListSection videos={videos} />
-        <StatsSection GetStore_Func={ GetStorageInfo } addsize={ addSize }/>
+        <StatsSection GetStore_Func={ GetStorageInfo } sizestate={ sizeState }/>
       </main>
       <Footer />
     </div>
