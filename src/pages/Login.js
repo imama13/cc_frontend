@@ -48,12 +48,13 @@ const Login = () => {
       const data = await response.json();
       alert(isLogin ? "Login successful!" : "Registration successful! Please login.");
 
+      console.log(data);
       if (!isLogin) {
         setIsLogin(true); // Switch to login after registration
         setUsername("");
         setPassword("");
       } else {
-        login(username);
+        login(username, data.token);
         navigate("/"); // Redirect to home page after login
       }
     } catch (error) {
