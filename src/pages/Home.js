@@ -5,19 +5,31 @@ import VideoListSection from "../components/VideoListSection";
 import StatsSection from "../components/StatsSection";
 import Footer from "../components/Footer";
 import '../styles/styles.css'
+import { UploadVideo } from '../utils/UploadVideo';
 // index.js or App.js
+import { useAuth } from "../context/AuthContext";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 function Home() {
+  const { user } = useAuth();
   const [videos, setVideos] = useState([]);
   const [storageUsed, setStorageUsed] = useState(0);
   const [bandwidthUsed, setBandwidthUsed] = useState(0);
 
-  const handleUpload = (video) => {
-    // Logic for uploading video
-    setVideos((prevVideos) => [...prevVideos, video]);
-    setStorageUsed((prev) => prev + video.size / (1024 * 1024)); // Convert bytes to MB
+   const handleUpload = async (videoFile, videoSize) => {
+    if (!user) {
+      alert("You must be logged in to upload videos.");
+      return;
+    }
+
+    try {
+      await UploadVideo(videoFile, videoSize, user.username);
+      // Optionally update state after successful upload
+      console.log("Video uploaded successfully");
+    } catch (error) {
+      console.error("Error uploading video:", error.message);
+    }
   };
 
   return (
