@@ -1,30 +1,21 @@
 import React from "react";
 import Slider from "rc-slider";
 import { useAuth } from "../context/AuthContext";
+import { useVideo } from "../context/VideoContext";
 import "rc-slider/assets/index.css";
 import { useState } from "react";
 
-function StatsSection({ GetStore_Func, sizestate, maxBandwidth = 100, maxStorage = 50 }) {
-  const { user } = useAuth();
-  const [storageUsed, setStorageUsed] = useState(0);
-  const [bandwidthUsed, setBandwidthUsed] = useState(0);
-  const [addSize, setAddSize] = sizestate;
 
+function StatsSection({ GetStore_Func, totalsize, maxBandwidth = 100, maxStorage = 50 }) {
+  const { user } = useAuth();
+  const { storageUsed, setStorageUsed, bandwidthUsed, setBandwidthUsed, uploadError, setUploadError } = useVideo();
   const handleStorage = async () => {
     const bdy = await GetStore_Func(user.username);
     setBandwidthUsed(bdy.totalUsageToday);
-    setStorageUsed(bdy.totalStorageUsed);
-
-    // Check for insufficient storage
-    if (bdy.insufficientStorage) {
-      setUploadError(true);
-    } else {
-      setUploadError(false);
-    }
+    setStorageUsed(totalsize);
   };
 
   handleStorage();
-  setAddSize(0);
 
   const bandwidthPercentage = Math.min((bandwidthUsed / maxBandwidth) * 100, 100);
   const storagePercentage = Math.min((storageUsed / maxStorage) * 100, 100);
@@ -32,6 +23,7 @@ function StatsSection({ GetStore_Func, sizestate, maxBandwidth = 100, maxStorage
 
   // Determine bar color for storage
   const storageBarColor = storagePercentage > 80 ? "red" : "#007bff";
+  const bandwidthBarColor = bandwidthPercentage >= 100 ? "red" : "#007bff";
 
   return (
     <section id="stats-section" className="my-4">
@@ -43,9 +35,9 @@ function StatsSection({ GetStore_Func, sizestate, maxBandwidth = 100, maxStorage
         <Slider
           value={bandwidthPercentage}
           max={100}
-          trackStyle={{ backgroundColor: "#007bff", height: 8 }}
+          trackStyle={{ backgroundColor: bandwidthBarColor, height: 8 }}
           handleStyle={{
-            borderColor: "#007bff",
+            borderColor: bandwidthBarColor,
             height: 20,
             width: 20,
             marginLeft: -10,
@@ -55,14 +47,15 @@ function StatsSection({ GetStore_Func, sizestate, maxBandwidth = 100, maxStorage
           railStyle={{ backgroundColor: "#e4e4e4", height: 8 }}
           disabled
         />
-        <p className="mt-2 text-center">{bandwidthPercentage.toFixed(2)}%</p>
+    {bandwidthPercentage == 100 || <p className="mt-2 text-center">{bandwidthPercentage.toFixed(2)}%</p>}
+    {bandwidthPercentage == 100 && <p className="mt-2 text-center" style = {{ color: "red", fontWeight: "bold" }}>Daily Bandwidth exceeded, wait tomorrow to upload more!</p>}
       </div>
       <div className="mb-3">
         <p>
           Storage Used: <strong>{storageUsed.toFixed(2)} MB</strong> / {maxStorage} MB
         </p>
         <Slider
-          value={storagePercentage}
+          value={storagePercentage.toFixed(2)}
           max={100}
           trackStyle={{ backgroundColor: storageBarColor, height: 8 }}
           handleStyle={{
@@ -80,11 +73,6 @@ function StatsSection({ GetStore_Func, sizestate, maxBandwidth = 100, maxStorage
           {storagePercentage.toFixed(2)}% storage consumed, {storageRemaining.toFixed(2)} MB left
         </p>
       </div>
-      {uploadError && (
-        <p style={{ color: "red", fontWeight: "bold" }}>
-          Not enough storage! Clear space to upload this video.
-        </p>
-      )}
     </section>
   );
 }

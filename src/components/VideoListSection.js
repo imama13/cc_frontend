@@ -1,18 +1,21 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import Video from "./Video";
 
-function VideoListSection({ videos }) {
+function VideoListSection({videos, loading, error}) {
+
+  console.log(videos);
+
   return (
     <section id="video-list-section" className="mb-5">
       <h2>Your Videos</h2>
+      {loading && <p>Loading your videos...</p>}
+      {error && <p className="text-danger">{error}</p>}
+      {!loading && !error && videos.length === 0 && (
+        <p>No videos found. Start uploading your videos!</p>
+      )}
       <div id="video-list" className="row">
-        {videos.map((video, index) => (
-          <div key={index} className="col-md-4 mb-3">
-            <video controls width="100%">
-              <source src={URL.createObjectURL(video)} type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
-            <p>{video.name}</p>
-          </div>
+        {videos.map((video) => (
+          <Video key={video.id} video={video} />
         ))}
       </div>
     </section>
